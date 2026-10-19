@@ -4,6 +4,29 @@ Imagery for the cyberpunk redesign of www.logicsonata.com (see `docs/REDESIGN-CH
 36 stills (Flux.1 dev or Flux.1 Krea dev) and 8 video clips (Wan 2.2 14B). Every prompt below is complete and
 copy-ready: scene, camera, lens, angle and lighting are already written in.
 
+## 0. Test batch review (19 Oct 2026)
+
+| Shot | Verdict | Action |
+| --- | --- | --- |
+| PROD-KA-WIDE | Approved. Natural faces, clean hands, right mood. | Keep. Upscale 2x. |
+| HOME-02 | Approved. Rain, city glow and dark room all work; slightly hazy, the grade fixes that. | Keep. Upscale 2x. |
+| CITY-SG | Redo. Marina Bay Sands is distorted (straight towers, invented blue dome roofs). Locals will notice. | Use the revised CITY-SG prompt below: financial district skyline, Marina Bay Sands left out of frame. |
+| HOME-01 | Redo. Generic box, not our appliance; boards intersect the chassis; not a clean exploded view. | Use image-to-image from the clean hero source in `deliverables/hero-source/` (method below). |
+
+What the batch tells us about the rest:
+
+- **People and interiors work very well.** Keep going with the product and inner-page shots as written.
+- **Named landmarks are the weak spot.** For the other five cities, check every landmark against a real photo.
+  If it looks wrong, reroll or crop it out; the city feel matches without the landmark too.
+- **Our appliance must come from our own render.** Text-to-image invents a generic product. HOME-01 and HW-05 start
+  from the clean renders in `deliverables/hero-source/` (exploded and assembled, identical camera), which also makes
+  the VID-02 assembly clip line up. Generic hardware (chip, racks, data centre) stays text-to-image.
+- **Colour is fine as it comes out.** Flux leans toward royal blue and warm orange windows; the brand grade
+  (`deliverables/tools/grade.py`) pulls everything to red and cyan. Shots with people get a lighter grade (0.6) so
+  skin stays natural.
+- **Settings:** your workflow had 20 steps and no FluxGuidance node (ComfyUI then uses 3.5). Results are already
+  good. For a little more fine detail on Krea, use 28 steps and add a FluxGuidance node at 4.5.
+
 ## 1. How to run it
 
 ### Workflow order
@@ -66,13 +89,15 @@ and light changes only.
 
 ### HOME-01 · `home-hero.png`
 - **Use:** homepage hero, full-bleed, desktop and square phone crop. Also the first frame of VID-02.
-- **Method:** image-to-image from `public/images/hero-render@2x.webp` (website repo) at denoise 0.35 to 0.45. This
-  keeps the part layout, so the existing part labels still line up. Use text-to-image only if you want a new layout.
-- **Camera:** 50mm, f/5.6, three-quarter front view, camera slightly above the object (about 15 degrees down).
-- **Lighting:** low-key; red rim light back left, cyan rim light back right, soft overhead fill, haze, wet floor.
+- **Method:** image-to-image from `deliverables/hero-source/hero-clean-1536.png` (our own appliance, no labels,
+  same layout as the live hero). In ComfyUI: Load Image, VAE Encode, connect the latent to the KSampler instead of
+  the empty latent, denoise 0.35 to 0.45. Lower denoise keeps the product exact; higher adds more atmosphere. Keep
+  the best take at or below 0.45 so I can put the part labels back in the same places.
+- **Camera:** 50mm, f/5.6, three-quarter front view from slightly above (already set by the source render).
+- **Lighting:** low-key; cyan glow from the left, signal-red glow from below right, haze, wet floor.
 
 ```
-An exploded view of a compact private AI server appliance: brushed aluminium chassis panels, slotted front grilles, a cooling fan, a copper heat-pipe fin stack, a black mainboard with one large AI superchip, memory modules and an NVMe drive, all floating in precise evenly spaced layers above a wet black reflective floor in a dark industrial space. Three-quarter front view from slightly above, 50mm lens at f/5.6, every part in crisp focus. Low-key lighting: a signal-red rim light from behind on the left, an acid-cyan rim light from behind on the right, a soft overhead fill, thin haze catching the light beams, mirror-like reflections on the wet floor. Centered subject with generous dark space around it. Cinematic editorial product photograph, dystopian near-future mood, deep teal-black shadows, red and cyan as the only saturated colours, subtle film grain, gentle halation on highlights, photorealistic materials, no readable text or logos.
+An exploded view of a compact private AI server appliance floating in evenly spaced layers: a brushed aluminium lid on top, a cooling fan on a finned heatsink with copper heat pipes, a copper vapor chamber plate, a green mainboard with one large AI superchip and memory, slotted aluminium side grille panels, and an aluminium base plate at the bottom. It hovers above a wet black reflective floor in a dark industrial space. Three-quarter front view from slightly above, 50mm lens at f/5.6, every part in crisp focus. Low-key lighting: an acid-cyan glow from the left side, a signal-red glow from below on the right, thin haze catching the light, mirror-like reflections on the wet floor. Centered subject with generous dark space around it. Cinematic editorial product photograph, dystopian near-future mood, deep teal-black shadows, red and cyan as the only saturated colours, subtle film grain, gentle halation on highlights, photorealistic brushed metal and copper, no readable text or logos.
 ```
 
 ### HOME-02 · `home-intro.png`
@@ -122,8 +147,10 @@ AI-generated landmarks can drift. Reroll any take where a landmark looks wrong.
 - **Lighting:** just after blue hour, after rain; low clouds glowing from below.
 
 ```
-Singapore's Marina Bay skyline at night just after rain, the financial district towers and Marina Bay Sands reflected in the still water of the bay. Shot from the waterfront promenade at eye level with a 35mm lens at f/8, long exposure on a tripod so the water is glassy smooth, wet paving in the foreground. Low clouds glow from the city lights below, the skyline lights lean toward acid cyan with scattered signal-red accents, the sky a deep teal-black. Cinematic night photograph, dystopian near-future mood, subtle film grain, gentle halation around lights, photorealistic, no readable text or logos.
+Singapore's Raffles Place financial district at night just after rain, a dense cluster of tall glass skyscrapers rising straight from the edge of Marina Bay, their lights reflected in the still water. Shot from across the bay at eye level with a 35mm lens at f/8, long exposure on a tripod so the water is glassy smooth, wet paving and a low railing in the foreground, the skyline filling the middle third of the frame. Low clouds glow from the city lights below, the tower lights lean toward cool cyan-white with a few signal-red aircraft warning lights on the rooftops, the sky a deep teal-black. Cinematic night photograph, dystopian near-future mood, subtle film grain, gentle halation around lights, photorealistic, no readable text or logos.
 ```
+
+Revised after the test batch: Marina Bay Sands is left out on purpose because Flux distorts it.
 
 ### CITY-KL · `city-kuala-lumpur.png`
 - **Camera:** 70mm telephoto, f/8, slightly elevated from a rooftop, compressed perspective.
@@ -207,13 +234,14 @@ A rack-mounted AI server appliance drawer pulled halfway out of a black server r
 
 ### HW-05 · `hw-appliance-assembled.png`
 - **Use:** last frame of VID-02 (parts assembling). Must match HOME-01 framing exactly.
-- **Method:** same seed, resolution and camera words as HOME-01. Compare the two side by side: the appliance should
-  sit in the same place in both frames.
+- **Method:** image-to-image from `deliverables/hero-source/hero-assembled-1536.png`, with the same seed and denoise
+  as your approved HOME-01 take. Both sources share one camera, so the appliance sits in the same place in both
+  frames.
 - **Camera:** 50mm, f/5.6, same three-quarter view from slightly above as HOME-01.
-- **Lighting:** identical to HOME-01.
+- **Lighting:** identical to HOME-01 (cyan from the left, red from below right).
 
 ```
-A compact private AI server appliance, fully assembled and closed: brushed aluminium chassis, slotted front grille glowing faintly cyan from inside, standing alone on a wet black reflective floor in a dark industrial space. Three-quarter front view from slightly above, 50mm lens at f/5.6, the whole appliance in crisp focus, centered with generous dark space around it. Low-key lighting: a signal-red rim light from behind on the left, an acid-cyan rim light from behind on the right, a soft overhead fill, thin haze catching the light beams, mirror-like reflections on the wet floor. Cinematic editorial product photograph, dystopian near-future mood, deep teal-black shadows, red and cyan as the only saturated colours, subtle film grain, photorealistic materials, no readable text or logos.
+A compact private AI server appliance, fully assembled and closed: brushed aluminium lid and base, slotted aluminium grille panels on the sides, hovering just above a wet black reflective floor in a dark industrial space. Three-quarter front view from slightly above, 50mm lens at f/5.6, the whole appliance in crisp focus, centered with generous dark space around it. Low-key lighting: an acid-cyan glow from the left side, a signal-red glow from below on the right, thin haze catching the light, mirror-like reflections on the wet floor. Cinematic editorial product photograph, dystopian near-future mood, deep teal-black shadows, red and cyan as the only saturated colours, subtle film grain, photorealistic materials, no readable text or logos.
 ```
 
 ---
